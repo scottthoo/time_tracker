@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "817201206817",
+    "firebase_url": "https://time-tracker-2df95.firebaseio.com",
+    "project_id": "time-tracker-2df95",
+    "storage_bucket": "time-tracker-2df95.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:817201206817:android:16a75a0db1673f4a597560",
+        "android_client_info": {
+          "package_name": "com.bolt.timetracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "817201206817-kluprmvfkbjtr1d58invl7g8dd2s4i0f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bolt.timetracker",
+            "certificate_hash": "96d8e5d8118c69b2950d9146d6b60e197cb75a5d"
+          }
+        },
+        {
+          "client_id": "817201206817-g11s5ir4a8sqpkmhp26u9992mcrp3ht8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB0NWWS9_3r_v5Y5CWkzGG4OVS-lU-kqT8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "817201206817-g11s5ir4a8sqpkmhp26u9992mcrp3ht8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
