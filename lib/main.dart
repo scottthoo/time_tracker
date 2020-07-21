@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:timetracker/app/sign_in/landing_page.dart';
+import 'package:timetracker/services/apple_sign_in_available.dart';
 import 'package:timetracker/services/auth.dart';
 
-void main() => runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final appleSignInAvailable = await AppleSignInAvailable.check();
+  runApp(Provider<AppleSignInAvailable>.value(
+    value: appleSignInAvailable,
+    child: MyApp(),
+  ));
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -10,7 +19,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Hi',
       theme: ThemeData(
-        primarySwatch: Colors.purple,
+        primarySwatch: Colors.teal,
       ),
       home: LandingPage(
         auth: Auth(),
