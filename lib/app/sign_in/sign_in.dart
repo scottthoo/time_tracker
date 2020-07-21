@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:timetracker/app/sign_in/email_sign_in_page.dart';
 import 'package:timetracker/app/sign_in/social_sign_in_button.dart';
 import 'package:timetracker/services/apple_sign_in_available.dart';
 import 'package:timetracker/services/auth.dart';
@@ -26,13 +27,22 @@ class SignInPage extends StatelessWidget {
   }
 
   Future<void> _signInWithApple() async {
-    final appleSignInAvailable = await AppleSignInAvailable.check();
-
     try {
       await auth.signInWithApple();
     } catch (e) {
       print(e.toString());
     }
+  }
+
+  void _signInWithEmail(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (context) => EmailSignInPage(
+          auth: auth,
+        ),
+      ),
+    );
   }
 
   @override
@@ -90,9 +100,7 @@ class SignInPage extends StatelessWidget {
             text: 'Sign in with Email',
             textColor: Colors.white,
             color: Colors.teal[700],
-            onPressed: () {
-              print('object');
-            },
+            onPressed: () => _signInWithEmail(context),
           ),
           SizedBox(height: 8),
           Text(
