@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:timetracker/app/sign_in/landing_page.dart';
 import 'package:timetracker/services/apple_sign_in_available.dart';
 import 'package:timetracker/services/auth.dart';
-import 'package:timetracker/services/auth_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,8 +16,8 @@ void main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return AuthProvider(
-      auth: Auth(),
+    return Provider<AuthBase>(
+      create: (context) => Auth(),
       child: MaterialApp(
         title: 'Hi',
         theme: ThemeData(
