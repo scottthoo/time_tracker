@@ -5,12 +5,11 @@ import 'package:timetracker/app/sign_in/valitators.dart';
 import 'package:timetracker/common_widgets/form_submit_button.dart';
 import 'package:timetracker/common_widgets/platform_alert_dialog.dart';
 import 'package:timetracker/services/auth.dart';
+import 'package:timetracker/services/auth_provider.dart';
 
 enum EmailSignInFormType { signIn, register }
 
 class EmailSignInForm extends StatefulWidget with EmailAndPasswordValidators {
-  EmailSignInForm({@required this.auth});
-  final AuthBase auth;
   @override
   _EmailSignInFormState createState() => _EmailSignInFormState();
 }
@@ -34,10 +33,12 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
     });
     try {
       await Future.delayed(Duration(seconds: 1));
+
+      final auth = AuthProvider.of(context);
       if (_formType == EmailSignInFormType.signIn)
-        await widget.auth.signInWithEmailAndPassword(_email, _password);
+        await auth.signInWithEmailAndPassword(_email, _password);
       else {
-        await widget.auth.createUserWithEmailAndPassword(_email, _password);
+        await auth.createUserWithEmailAndPassword(_email, _password);
       }
       Navigator.of(context).pop();
     } catch (e) {

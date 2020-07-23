@@ -3,8 +3,6 @@ import 'package:timetracker/app/sign_in/email_sign_in_form.dart';
 import 'package:timetracker/services/auth.dart';
 
 class EmailSignInPage extends StatelessWidget {
-  final AuthBase auth;
-  const EmailSignInPage({Key key, this.auth}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,6 +21,6 @@ class EmailSignInPage extends StatelessWidget {
   }
 
   Widget _buildContent() {
-    return EmailSignInForm(auth: auth);
+    return EmailSignInForm();
   }
 }
