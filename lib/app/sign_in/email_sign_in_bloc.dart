@@ -1,8 +1,13 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:timetracker/app/sign_in/email_sign_in_model.dart';
+import 'package:timetracker/services/auth.dart';
 
 class EmailSignInBloc {
+  EmailSignInBloc({@required this.auth});
+
+  final AuthBase auth;
   // StreamController
   final StreamController<EmailSignInModel> _modelController =
       StreamController<EmailSignInModel>();
@@ -16,8 +21,24 @@ class EmailSignInBloc {
     _modelController.close();
   }
 
-  void doSomething() {
-    _modelController.add(null);
+  Future<void> submit() async {
+    updateWith(
+      submitted: true,
+      isLoading: true,
+    );
+    try {
+      await Future.delayed(Duration(seconds: 1));
+      if (_model.formType == EmailSignInFormType.signIn)
+        await auth.signInWithEmailAndPassword(_model.email, _model.password);
+      else {
+        await auth.createUserWithEmailAndPassword(
+            _model.email, _model.password);
+      }
+    } catch (e) {
+      rethrow;
+    } finally {
+      updateWith(isLoading: false);
+    }
   }
 
   void updateWith({
