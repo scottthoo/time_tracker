@@ -32,7 +32,7 @@ class JobsPage extends StatelessWidget {
     try {
       final database = Provider.of<Database>(context, listen: false);
       await database.createJob(
-        Job(name: 'Blogging', ratePerHour: 10),
+        Job(name: 'Blogging2', ratePerHour: 10),
       );
     } on PlatformException catch (e) {
       PlatformExceptionAlertDialog(title: 'Operation failed', exception: e)
@@ -55,10 +55,32 @@ class JobsPage extends StatelessWidget {
           )
         ],
       ),
+      body: _buildContent(context),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () => _createJob(context),
       ),
+    );
+  }
+
+  Widget _buildContent(BuildContext context) {
+    final database = Provider.of<Database>(context);
+    return StreamBuilder<List<Job>>(
+      stream: database.jobsStream(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          final job = snapshot.data;
+          final children = job.map((job) => Text(job.name)).toList();
+          return ListView(children: children);
+        }
+
+        if (snapshot.hasError) {
+          return Center(
+            child: Text('Some Error Occurred '),
+          );
+        }
+        return Center(child: CircularProgressIndicator());
+      },
     );
   }
 }

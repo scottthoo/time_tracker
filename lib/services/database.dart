@@ -1,10 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:timetracker/app/home/models/job.dart';
 import 'package:timetracker/services/api_path.dart';
+import 'package:timetracker/services/firestore_service.dart';
 
 abstract class Database {
   Future<void> createJob(Job job);
+  Stream<List<Job>> jobsStream();
 }
 
 class FireStoreDatabase implements Database {
@@ -12,12 +13,11 @@ class FireStoreDatabase implements Database {
 
   final String uid;
 
-  Future<void> createJob(Job job) async =>
-      await _setData(path: APIPath.job(uid, 'job_abc'), data: job.toMap());
+  final _service = FirestoreService.instance;
 
-  Future<void> _setData({String path, Map<String, dynamic> data}) async {
-    final reference = Firestore.instance.document(path);
-    print('$path:$data');
-    await reference.setData(data);
-  }
+  Future<void> createJob(Job job) async => await _service.setData(
+      path: APIPath.job(uid, 'job_abc'), data: job.toMap());
+
+  Stream<List<Job>> jobsStream() => _service.collectionStream(
+      path: APIPath.jobs(uid), builder: (data) => Job.fromMap(data));
 }
