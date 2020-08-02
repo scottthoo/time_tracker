@@ -35,9 +35,8 @@ class EmailSignInBloc {
             _model.email, _model.password);
       }
     } catch (e) {
-      rethrow;
-    } finally {
       updateWith(isLoading: false);
+      rethrow;
     }
   }
 
@@ -56,7 +55,6 @@ class EmailSignInBloc {
 
   void updateEmail(String email) => updateWith(email: email);
   void updatePassword(String password) => updateWith(password: password);
-
   void updateWith({
     String email,
     String password,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:timetracker/app/sign_in/home_page.dart';
-import 'package:timetracker/app/sign_in/sign_in.dart';
+import 'package:timetracker/app/sign_in/sign_in_page.dart';
 import 'package:timetracker/services/auth.dart';
 
 class LandingPage extends StatelessWidget {

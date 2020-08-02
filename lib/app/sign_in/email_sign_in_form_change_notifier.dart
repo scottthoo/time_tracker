@@ -3,32 +3,42 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:timetracker/app/sign_in/validators.dart';
+import 'package:timetracker/app/sign_in/email_sign_in_change_model.dart';
 import 'package:timetracker/common_widgets/form_submit_button.dart';
-import 'package:timetracker/common_widgets/platform_alert_dialog.dart';
 import 'package:timetracker/common_widgets/platform_exception_alert_dialog.dart';
 import 'package:timetracker/services/auth.dart';
 
 import 'email_sign_in_model.dart';
 
-class EmailSignInFormStateful extends StatefulWidget
-    with EmailAndPasswordValidators {
+class EmailSignInFormChangeNotifier extends StatefulWidget {
+  EmailSignInFormChangeNotifier({@required this.model});
+  final EmailSignInChangeModel model;
+
+  static Widget create(BuildContext context) {
+    final AuthBase auth = Provider.of<AuthBase>(context);
+    return ChangeNotifierProvider<EmailSignInChangeModel>(
+      create: (context) => EmailSignInChangeModel(auth: auth),
+      child: Consumer<EmailSignInChangeModel>(
+        builder: (context, model, _) => EmailSignInFormChangeNotifier(
+          model: model,
+        ),
+      ),
+    );
+  }
+
   @override
   _EmailSignInFormStatefulState createState() =>
       _EmailSignInFormStatefulState();
 }
 
-class _EmailSignInFormStatefulState extends State<EmailSignInFormStateful> {
+class _EmailSignInFormStatefulState
+    extends State<EmailSignInFormChangeNotifier> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final FocusNode _emailFocusNode = FocusNode();
   final FocusNode _passwordFocusNode = FocusNode();
 
-  String get _email => _emailController.text;
-  String get _password => _passwordController.text;
-  EmailSignInFormType _formType = EmailSignInFormType.signIn;
-  bool _submitted = false;
-  bool _isLoading = false;
+  EmailSignInChangeModel get model => widget.model;
 
   @override
   void dispose() {
@@ -39,115 +49,80 @@ class _EmailSignInFormStatefulState extends State<EmailSignInFormStateful> {
     super.dispose();
   }
 
-  void _submit() async {
-    setState(() {
-      _submitted = true;
-      _isLoading = true;
-    });
+  Future<void> _submit() async {
     try {
-      await Future.delayed(Duration(seconds: 1));
-
-      final auth = Provider.of<AuthBase>(context, listen: false);
-      if (_formType == EmailSignInFormType.signIn)
-        await auth.signInWithEmailAndPassword(_email, _password);
-      else {
-        await auth.createUserWithEmailAndPassword(_email, _password);
-      }
+      await model.submit();
       Navigator.of(context).pop();
     } on PlatformException catch (e) {
       PlatformExceptionAlertDialog(
         title: 'Sign in failed',
         exception: e,
       ).show(context);
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
     }
   }
 
   void _emailEditingComplete() {
-    final newFocus = widget.emailValidator.isValid(_email)
+    final newFocus = model.emailValidator.isValid(model.email)
         ? _passwordFocusNode
         : _emailFocusNode;
     FocusScope.of(context).requestFocus(newFocus);
   }
 
   void _toggleFormType() {
-    setState(() {
-      _submitted = false;
-      _formType = _formType == EmailSignInFormType.signIn
-          ? EmailSignInFormType.register
-          : EmailSignInFormType.signIn;
-    });
+    model.toggleFormType();
     _emailController.clear();
     _passwordController.clear();
   }
 
   List<Widget> _buildChildren() {
-    final primaryText = _formType == EmailSignInFormType.signIn
-        ? 'Sign in'
-        : 'Create an account';
-    final secondaryText = _formType == EmailSignInFormType.signIn
-        ? 'Need an account? Register'
-        : 'Have an account? Sign in';
-
-    bool submitEnabled = widget.emailValidator.isValid(_email) &&
-        widget.passwordValidator.isValid(_password) &&
-        !_isLoading;
-
     return [
       _buildEmailTextField(),
       SizedBox(height: 8),
       buildPasswordTextField(),
       SizedBox(height: 8),
       FormSubmitButton(
-        text: primaryText,
-        onPressed: submitEnabled ? _submit : null,
+        text: model.primaryButtonText,
+        onPressed: model.canSubmit ? _submit : null,
       ),
       SizedBox(height: 8),
       FlatButton(
-        child: Text(secondaryText),
-        onPressed: !_isLoading ? _toggleFormType : null,
+        child: Text(model.secondaryButtonText),
+        onPressed: !model.isLoading ? () => _toggleFormType() : null,
       ),
     ];
   }
 
   TextField buildPasswordTextField() {
-    bool showErrorText =
-        _submitted && !widget.emailValidator.isValid(_password);
-
     return TextField(
       controller: _passwordController,
       focusNode: _passwordFocusNode,
       decoration: InputDecoration(
         labelText: 'Password',
-        errorText: showErrorText ? widget.invalidPasswordErrorText : null,
-        enabled: _isLoading == false,
+        errorText: model.passwordErrorText,
+        enabled: model.isLoading == false,
       ),
       obscureText: true,
       textInputAction: TextInputAction.go,
-      onChanged: (password) => _updateState(),
+      onChanged: model.updatePassword,
       onEditingComplete: _submit,
     );
   }
 
   TextField _buildEmailTextField() {
-    bool showErrorText = _submitted && !widget.emailValidator.isValid(_email);
     return TextField(
       controller: _emailController,
       focusNode: _emailFocusNode,
       decoration: InputDecoration(
         labelText: 'Email',
         hintText: 'your@email.com',
-        errorText: showErrorText ? widget.invalidEmailErrorText : null,
-        enabled: _isLoading == false,
+        errorText: model.emailErrorText,
+        enabled: model.isLoading == false,
       ),
       autocorrect: false,
       keyboardType: TextInputType.emailAddress,
       textInputAction: TextInputAction.next,
-      onChanged: (email) => _updateState(),
-      onEditingComplete: _emailEditingComplete,
+      onChanged: model.updateEmail,
+      onEditingComplete: () => _emailEditingComplete(),
     );
   }
 
@@ -161,9 +136,5 @@ class _EmailSignInFormStatefulState extends State<EmailSignInFormStateful> {
         children: _buildChildren(),
       ),
     );
-  }
-
-  void _updateState() {
-    setState(() {});
   }
 }
