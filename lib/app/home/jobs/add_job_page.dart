@@ -42,6 +42,7 @@ class _AddJobPageState extends State<AddJobPage> {
     _ratePerHourController.dispose();
     _nameFocusNode.dispose();
     _ratePerHourFocusNode.dispose();
+    super.dispose();
   }
 
   bool _validateAndSaveForm() {
@@ -143,7 +144,7 @@ class _AddJobPageState extends State<AddJobPage> {
           signed: false,
           decimal: true,
         ),
-        onSaved: (value) => _ratePerHour = int.parse(value) ?? 0,
+        onSaved: (value) => _ratePerHour = int.tryParse(value) ?? 0,
         onEditingComplete: () {},
       )
     ];
