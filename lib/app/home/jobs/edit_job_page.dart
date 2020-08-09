@@ -6,26 +6,28 @@ import 'package:timetracker/common_widgets/platform_exception_alert_dialog.dart'
 import 'package:timetracker/services/database.dart';
 import 'package:flutter/services.dart';
 
-class AddJobPage extends StatefulWidget {
-  const AddJobPage({Key key, @required this.database}) : super(key: key);
-
+class EditJobPage extends StatefulWidget {
+  const EditJobPage({Key key, @required this.database, this.job})
+      : super(key: key);
   final Database database;
+  final Job job;
 
-  static Future<void> show(BuildContext context) async {
+  static Future<void> show(BuildContext context, {Job job}) async {
     final database = Provider.of<Database>(context, listen: false);
     await Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => AddJobPage(
+      builder: (context) => EditJobPage(
         database: database,
+        job: job,
       ),
       fullscreenDialog: true,
     ));
   }
 
   @override
-  _AddJobPageState createState() => _AddJobPageState();
+  _EditJobPageState createState() => _EditJobPageState();
 }
 
-class _AddJobPageState extends State<AddJobPage> {
+class _EditJobPageState extends State<EditJobPage> {
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _nameController = TextEditingController();
@@ -35,6 +37,15 @@ class _AddJobPageState extends State<AddJobPage> {
 
   String _name;
   int _ratePerHour;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.job != null) {
+      _name = widget.job.name;
+      _ratePerHour = widget.job.ratePerHour;
+    }
+  }
 
   @override
   void dispose() {
@@ -59,16 +70,21 @@ class _AddJobPageState extends State<AddJobPage> {
       try {
         final jobs = await widget.database.jobsStream().first;
         final allNames = jobs.map((job) => job.name).toList();
+        if (widget.job != null) {
+          allNames.remove(widget.job.name);
+        }
         if (allNames.contains(_name)) {
           PlatformAlertDialog(
             title: 'Name Already used',
             content: 'Please choose a different job name',
             defaultActionText: 'OK',
           ).show(context);
-        } else {}
-        final job = Job(name: _name, ratePerHour: _ratePerHour);
-        await widget.database.createJob(job);
-        Navigator.of(context).pop();
+        } else {
+          final id = widget.job?.id ?? documentIdFromCurrentDate();
+          final job = Job(id: id, name: _name, ratePerHour: _ratePerHour);
+          await widget.database.setJob(job);
+          Navigator.of(context).pop();
+        }
       } on PlatformException catch (e) {
         PlatformExceptionAlertDialog(
           title: 'Operation failed',
@@ -82,7 +98,7 @@ class _AddJobPageState extends State<AddJobPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('New Job'),
+        title: Text(widget.job == null ? 'New Job' : 'Edit Job'),
         elevation: 2.0,
         actions: <Widget>[
           FlatButton(
@@ -128,18 +144,20 @@ class _AddJobPageState extends State<AddJobPage> {
   List<Widget> _buildFormChildren() {
     return [
       TextFormField(
-        controller: _nameController,
+//        controller: _nameController,
         focusNode: _nameFocusNode,
         decoration: InputDecoration(labelText: 'Job name'),
+        initialValue: _name,
         onSaved: (value) => _name = value,
         validator: (value) => value.isNotEmpty ? null : 'Name can\'t be empty.',
         onEditingComplete: () =>
             FocusScope.of(context).requestFocus(_ratePerHourFocusNode),
       ),
       TextFormField(
-        controller: _ratePerHourController,
+//        controller: _ratePerHourController,
         focusNode: _ratePerHourFocusNode,
         decoration: InputDecoration(labelText: 'Rate per hour'),
+        initialValue: _ratePerHour != null ? '$_ratePerHour' : null,
         keyboardType: TextInputType.numberWithOptions(
           signed: false,
           decimal: true,
