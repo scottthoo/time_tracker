@@ -1,3 +1,4 @@
+import 'format.dart';
 import 'package:flutter/material.dart';
 import 'package:timetracker/app/home/job_entries/format.dart';
 import 'package:timetracker/app/home/models/entry.dart';
@@ -49,26 +50,26 @@ class EntryListItem extends StatelessWidget {
           Text(dayOfWeek, style: TextStyle(fontSize: 18.0, color: Colors.grey)),
           SizedBox(width: 15.0),
           Text(startDate, style: TextStyle(fontSize: 18.0)),
-//          if (job.ratePerHour > 0.0) ...<Widget>[
-          Expanded(child: Container()),
-          Text(
-            payFormatted,
-            style: TextStyle(fontSize: 16.0, color: Colors.green[700]),
-          ),
-//          ],
+          if (job.ratePerHour > 0.0) ...<Widget>[
+            Expanded(child: Container()),
+            Text(
+              payFormatted,
+              style: TextStyle(fontSize: 16.0, color: Colors.green[700]),
+            ),
+          ],
         ]),
         Row(children: <Widget>[
           Text('$startTime - $endTime', style: TextStyle(fontSize: 16.0)),
           Expanded(child: Container()),
           Text(durationFormatted, style: TextStyle(fontSize: 16.0)),
         ]),
-//        if (entry.comment.isNotEmpty)
-        Text(
-          entry.comment,
-          style: TextStyle(fontSize: 12.0),
-          overflow: TextOverflow.ellipsis,
-          maxLines: 1,
-        ),
+        if (entry.comment.isNotEmpty)
+          Text(
+            entry.comment,
+            style: TextStyle(fontSize: 12.0),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
       ],
     );
   }

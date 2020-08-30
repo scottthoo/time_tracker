@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:timetracker/app/home/job_entries/job_entries_page.dart';
 import 'package:timetracker/app/home/jobs/edit_job_page.dart';
 import 'package:timetracker/app/home/jobs/empty_content.dart';
 import 'package:timetracker/app/home/jobs/job_list_tile.dart';
@@ -46,24 +47,22 @@ class JobsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final database = Provider.of<Database>(context, listen: false);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Jobs'),
         actions: <Widget>[
-          FlatButton(
-            child: Text(
-              'Logout',
-              style: TextStyle(color: Colors.white),
+          IconButton(
+            icon: Icon(
+              Icons.add,
+              color: Colors.white,
             ),
-            onPressed: () => _confirmSignOut(context),
-          )
+            onPressed: () => EditJobPage.show(context, database: database),
+          ),
         ],
       ),
       body: _buildContent(context),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () => EditJobPage.show(context),
-      ),
     );
   }
 
@@ -81,7 +80,7 @@ class JobsPage extends StatelessWidget {
             onDismissed: (direction) => _delete(context, job),
             child: JobListTile(
               job: job,
-              onTap: () => EditJobPage.show(context, job: job),
+              onTap: () => JobEntriesPage.show(context, job),
             ),
           ),
         );

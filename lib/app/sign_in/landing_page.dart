@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:timetracker/app/home/home_page.dart';
 import 'package:timetracker/app/home/jobs/jobs_page.dart';
 import 'package:timetracker/app/sign_in/sign_in_page.dart';
 import 'package:timetracker/services/auth.dart';
@@ -8,10 +9,13 @@ import 'package:timetracker/services/database.dart';
 class LandingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    print("build : ");
     final auth = Provider.of<AuthBase>(context, listen: false);
     return StreamBuilder<User>(
         stream: auth.onAuthStateChanged,
         builder: (context, snapshot) {
+          print(snapshot);
+
           if (snapshot.connectionState == ConnectionState.active) {
             User user = snapshot.data;
             if (user == null) {
@@ -19,7 +23,7 @@ class LandingPage extends StatelessWidget {
             }
             return Provider<Database>(
               create: (_) => FirestoreDatabase(uid: user.uid),
-              child: JobsPage(),
+              child: HomePage(),
             );
           } else {
             return Scaffold(
